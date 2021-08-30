@@ -225,11 +225,8 @@ router.post('/getAuthidCollection', (req, res) => {
 })
 
 router.post('/getIdCollection', (req, res) => {
-    const sql = `SELECT A.id as gallery_id, A.authid as authid, A.writer as writer, A.title as title, A.content as content, A.photo as photo, \
-    A.category as category, A.love as love_num, A.comment as comment_num, A.created_at as gallery_created_at, B.comment as comment, \
-    B.love as comment_love_num, B.created_at as comment_created_at, C.authid as love_authid, D.photo as photo_name \
-    FROM (SELECT * FROM gallery WHERE id = ?) as A LEFT JOIN gallery_comment as B ON B.gallery_id = A.id LEFT JOIN \
-    gallery_love as C ON C.gallery_id = A.id LEFT JOIN gallery_photo as D ON D.gallery_id = A.id`
+    console.log("바디", req.body.id)
+    const sql = `SELECT * FROM gallery WHERE id = ?`
     db.query(sql,[req.body.id], (err, rows, cols) => {
         if (err) throw err
         else {
