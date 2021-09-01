@@ -47,8 +47,29 @@ router.post('/saveArticle', (req, res) => {
     })
 })
 
+router.post('/getcomments', (req, res) => {
+    const sql = `(SELECT * FROM article_comment WHERE article_id = ?)`
+    db.query(sql,[req.body.id], (err, rows, cols) => {
+        if (err) throw err
+        else {
+            console.log('getcomments completed.')
+            res.json({datas: rows}) // send MySQL gallery data including tables' data related to gallery table
+        }
+    })
+})
+
 router.post('/getArticle', (req, res) => {
-    const sql = `(SELECT * FROM article ORDER BY RAND() LIMIT ${req.body.num})`
+    const sql = `(SELECT * FROM article WHERE id != ${req.body.except} ORDER BY RAND() LIMIT ${req.body.num} )`
+    db.query(sql, (err, rows, cols) => {
+        if (err) throw err
+        else {
+            console.log('getArticle completed.')
+            res.json({articleData: rows}) // NOTE! confirm this data necessarily.
+        }
+    })
+})
+router.post('/getArticles', (req, res) => {
+    const sql = `(SELECT * FROM article ORDER BY RAND() LIMIT ${req.body.num} )`
     db.query(sql, (err, rows, cols) => {
         if (err) throw err
         else {
@@ -58,6 +79,27 @@ router.post('/getArticle', (req, res) => {
     })
 })
 
+router.post('/loveArticle', (req, res) => { // love for collections the gallery include
+    const sql = 'INSERT INTO article_love (article_id, authid) VALUES (?, ?)'
+    const params = [req.body.article_id, req.user.authid]
+    db.query(sql, params, (err, rows, cols) => {
+        if (err) throw err
+        else {
+            db.query('SELECT love FROM article WHERE id = ?', [req.body.article_id], (err, rows, cols) => {
+                if (err) throw err
+                else {
+                    db.query('UPDATE article SET love = ? WHERE id = ?', [rows[0].love + 1, req.body.article_id], (err, rows, cols) => {
+                        if (err) throw err
+                        else {
+                            console.log('loveArticle completed')
+                            res.json({success: true})
+                        }
+                    })
+                }
+            })
+        }
+    })
+})
 router.post('/getHotArticle', (req, res) => {
     const sql = `SELECT A.id as article_id, A.authid as authid, A.writer as writer, A.title as title, A.content as content, A.photo as photo, \
     A.category as category, A.love as love_num, A.comment as comment_num, A.created_at as article_created_at, B.comment as comment, \

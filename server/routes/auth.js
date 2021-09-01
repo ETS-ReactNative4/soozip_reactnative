@@ -18,7 +18,7 @@ router.use(express.urlencoded({ extended: false }));
 router.use(cookieParser());
 
 router.use(session({
-    secret: process.env.COOKIE_SECRET,
+    secret: "scurator",
     resave: false,
     saveUninitialized: true,
     store: new MySQLStore({
@@ -26,7 +26,8 @@ router.use(session({
           user: process.env.DB_USER,
           password: process.env.DB_PASSWORD,
           database: process.env.DB_NAME
-    })
+    }),
+    name: 'rnbck',
 }))
 
 router.use(passport.initialize())
